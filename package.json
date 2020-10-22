@@ -1,10 +1,15 @@
 {
-  "name": "@nestjs/config",
-  "version": "0.5.0",
-  "description": "Nest - modern, fast, powerful node.js web framework (@config)",
-  "author": "Kamil Mysliwiec",
+  "name": "nestjs-any-config",
+  "version": "0.6.0",
+  "description": "A module for NestJS that support JSON and dotenv (maybe more?) config files.",
+  "author": "Aaron Jan",
+  "contributors": [
+    {
+      "name": "Kamil Mysliwiec"
+    }
+  ],
   "license": "MIT",
-  "url": "https://github.com/nestjs/config#readme",
+  "url": "https://github.com/aaronjan/nestjs-any-config#readme",
   "scripts": {
     "build": "rimraf -rf dist && tsc -p tsconfig.json",
     "lint": "eslint 'lib/**/*.ts' --fix",
@@ -71,6 +76,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/nestjs/config"
+    "url": "https://github.com/aaronjan/nestjs-any-config"
   }
 }
