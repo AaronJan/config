@@ -1,5 +1,11 @@
 # NestJS Any Config
 
+<p align="center">
+  <a href="https://github.com/aaronjan/nestjs-any-config"><img src="https://img.shields.io/github/tag/aaronjan/nestjs-any-config.svg" alt="GitHub tag (latest SemVer)" /></a>
+  <a href="https://github.com/aaronjan/nestjs-any-config"><img src="https://github.com/aaronjan/nestjs-any-config/workflows/Node.js%20CI/badge.svg?branch=master" alt="Build status" /></a>
+  <a href="https://github.com/aaronjan/nestjs-any-config"><img src="https://img.shields.io/github/license/aaronjan/nestjs-any-config.svg" alt="MIT" /></a>
+</p>
+
 ## Description
 
 This project is based on [`@nestjs/config`](https://github.com/nestjs/config), added JSON config support and kept original functions.
