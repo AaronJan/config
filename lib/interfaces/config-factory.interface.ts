@@ -4,4 +4,4 @@ type ConfigFactoryReturnValue =
 
 export type ConfigFactory<
   T extends ConfigFactoryReturnValue = ConfigFactoryReturnValue
-> = () => T;
+> = (config: Record<string, any>) => T;

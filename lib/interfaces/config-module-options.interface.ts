@@ -7,25 +7,45 @@ export interface ConfigModuleOptions {
    */
   isGlobal?: boolean;
 
-  /**
-   * If "true", environment files (`.env`) will be ignored.
-   */
-  ignoreEnvFile?: boolean;
+  type: 'env' | 'json';
 
-  /**
-   * If "true", predefined environment variables will not be validated.
-   */
-  ignoreEnvVars?: boolean;
+  envFile?: {
+    ignoreEnvFile?: boolean;
 
-  /**
-   * Path to the environment file(s) to be loaded.
-   */
-  envFilePath?: string | string[];
+    /**
+     * Path to the environment file(s) to be loaded.
+     */
+    filePath?: string | string[];
 
-  /**
-   * Environment file encoding.
-   */
-  encoding?: string;
+    /**
+     * Environment file encoding.
+     */
+    encoding?: string;
+
+    /**
+     * A boolean value indicating the use of expanded variables.
+     * If .env contains expanded variables, they'll only be parsed if
+     * this property is set to true.
+     */
+    expandVariables?: boolean;
+
+    /**
+     * If "true", predefined environment variables will not be validated.
+     */
+    ignoreEnvVars?: boolean;
+  };
+
+  jsonFile?: {
+    /**
+     * Path to the JSON file(s) to be loaded.
+     */
+    filePath?: string | string[];
+
+    /**
+     * Environment file encoding.
+     */
+    encoding?: string;
+  };
 
   /**
    * Environment variables validation schema (Joi).
@@ -43,11 +63,4 @@ export interface ConfigModuleOptions {
    * See: https://docs.nestjs.com/techniques/configuration
    */
   load?: Array<ConfigFactory>;
-
-  /**
-   * A boolean value indicating the use of expanded variables.
-   * If .env contains expanded variables, they'll only be parsed if
-   * this property is set to true.
-   */
-  expandVariables?: boolean;
 }

@@ -1,16 +1,12 @@
-import { Inject, Injectable, Optional } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import get from 'lodash.get';
 import { isUndefined } from 'util';
-import {
-  CONFIGURATION_TOKEN,
-  VALIDATED_ENV_PROPNAME,
-} from './config.constants';
+import { CONFIGURATION_KEY, CONFIGURATION_TOKEN } from './config.constants';
 import { NoInferType } from './types';
 
 @Injectable()
 export class ConfigService<K = Record<string, any>> {
   constructor(
-    @Optional()
     @Inject(CONFIGURATION_TOKEN)
     private readonly internalConfig: Record<string, any> = {},
   ) {}
@@ -40,7 +36,7 @@ export class ConfigService<K = Record<string, any>> {
    */
   get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
     const validatedEnvValue = get(
-      this.internalConfig[VALIDATED_ENV_PROPNAME],
+      this.internalConfig[CONFIGURATION_KEY],
       propertyPath,
     );
     if (!isUndefined(validatedEnvValue)) {

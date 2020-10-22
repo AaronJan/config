@@ -21,7 +21,10 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
-          envFilePath: join(__dirname, '.env'),
+          type: 'env',
+          envFile: {
+            filePath: join(__dirname, '.env'),
+          },
         }),
       ],
     };
@@ -32,8 +35,11 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
-          envFilePath: join(__dirname, '.env.expanded'),
-          expandVariables: true,
+          type: 'env',
+          envFile: {
+            filePath: join(__dirname, '.env.expanded'),
+            expandVariables: true,
+          },
         }),
       ],
     };
@@ -44,7 +50,10 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
-          envFilePath: [join(__dirname, '.env.local'), join(__dirname, '.env')],
+          type: 'env',
+          envFile: {
+            filePath: [join(__dirname, '.env.local'), join(__dirname, '.env')],
+          },
         }),
       ],
     };
@@ -55,6 +64,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
+          type: 'env',
           load: [databaseConfig],
         }),
       ],
@@ -66,6 +76,7 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
+          type: 'env',
           load: [nestedDatabaseConfig],
         }),
       ],
@@ -80,8 +91,11 @@ export class AppModule {
       module: AppModule,
       imports: [
         ConfigModule.forRoot({
-          envFilePath,
-          ignoreEnvFile,
+          type: 'env',
+          envFile: {
+            ignoreEnvFile,
+            filePath: envFilePath,
+          },
           validationSchema: Joi.object({
             PORT: Joi.number().required(),
             DATABASE_NAME: Joi.string().required(),
@@ -95,7 +109,9 @@ export class AppModule {
     return {
       module: AppModule,
       imports: [
-        ConfigModule.forRoot(),
+        ConfigModule.forRoot({
+          type: 'env',
+        }),
         ConfigModule.forFeature(databaseConfig),
       ],
     };

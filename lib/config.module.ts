@@ -1,23 +1,20 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { FactoryProvider } from '@nestjs/common/interfaces';
-import * as dotenv from 'dotenv';
-import dotenvExpand from 'dotenv-expand';
-import * as fs from 'fs';
-import { resolve } from 'path';
+import { FactoryProvider, Provider } from '@nestjs/common/interfaces';
 import { isObject } from 'util';
 import { ConfigHostModule } from './config-host.module';
 import {
+  CONFIGURATION_KEY,
+  CONFIGURATION_TOKEN,
   CONFIGURATION_LOADER,
   CONFIGURATION_SERVICE_TOKEN,
-  CONFIGURATION_TOKEN,
-  VALIDATED_ENV_LOADER,
-  VALIDATED_ENV_PROPNAME,
+  CONFIGURATION_CONTENT_INITIALIZATION,
 } from './config.constants';
 import { ConfigService } from './config.service';
 import { ConfigFactory, ConfigModuleOptions } from './interfaces';
 import { ConfigFactoryKeyHost } from './utils';
 import { createConfigProvider } from './utils/create-config-factory.util';
 import { getRegistrationToken } from './utils/get-registration-token.util';
+import { loadEnvFile, loadJsonFile } from './utils/file-loaders.util';
 import { mergeConfigObject } from './utils/merge-configs.util';
 
 @Module({
@@ -28,7 +25,7 @@ import { mergeConfigObject } from './utils/merge-configs.util';
       useExisting: CONFIGURATION_SERVICE_TOKEN,
     },
   ],
-  exports: [ConfigHostModule, ConfigService],
+  exports: [ConfigService],
 })
 export class ConfigModule {
   /**
@@ -36,16 +33,9 @@ export class ConfigModule {
    * Also, registers custom configurations globally.
    * @param options
    */
-  static forRoot(options: ConfigModuleOptions = {}): DynamicModule {
-    let validatedEnvConfig: Record<string, any> | undefined = undefined;
-    let config = options.ignoreEnvFile ? {} : this.loadEnvFile(options);
+  static forRoot(options: ConfigModuleOptions): DynamicModule {
+    let config = this.loadFile(options);
 
-    if (!options.ignoreEnvVars) {
-      config = {
-        ...config,
-        ...process.env,
-      };
-    }
     if (options.validationSchema) {
       const validationOptions = this.getSchemaValidationOptions(options);
       const {
@@ -56,44 +46,46 @@ export class ConfigModule {
       if (error) {
         throw new Error(`Config validation error: ${error.message}`);
       }
-      validatedEnvConfig = validatedConfig;
-      this.assignVariablesToProcess(validatedConfig);
-    } else {
+      config = validatedConfig;
+    }
+
+    if (options.type === 'env') {
       this.assignVariablesToProcess(config);
     }
 
-    const isConfigToLoad = options.load && options.load.length;
+    const isConfigToLoad =
+      options.load !== undefined && options.load.length > 0;
+
     const providers = (options.load || [])
       .map(factory =>
         createConfigProvider(factory as ConfigFactory & ConfigFactoryKeyHost),
       )
       .filter(item => item) as FactoryProvider[];
-
     const configProviderTokens = providers.map(item => item.provide);
-    const configServiceProvider = {
-      provide: ConfigService,
-      useFactory: (configService: ConfigService) => configService,
-      inject: [CONFIGURATION_SERVICE_TOKEN, ...configProviderTokens],
-    };
-    providers.push(configServiceProvider);
 
-    if (validatedEnvConfig) {
-      const validatedEnvConfigLoader = {
-        provide: VALIDATED_ENV_LOADER,
-        useFactory: (host: Record<string, any>) => {
-          host[VALIDATED_ENV_PROPNAME] = validatedEnvConfig;
+    const essentialProviders: Provider<any>[] = [
+      ...providers,
+      {
+        provide: ConfigService,
+        useFactory: (configService: ConfigService) => configService,
+        inject: [CONFIGURATION_SERVICE_TOKEN, ...configProviderTokens],
+      },
+      {
+        // Inject configuration content into host.
+        provide: CONFIGURATION_CONTENT_INITIALIZATION,
+        useFactory: (configHost: Record<string, any>) => {
+          configHost[CONFIGURATION_KEY] = config;
         },
         inject: [CONFIGURATION_TOKEN],
-      };
-      providers.push(validatedEnvConfigLoader);
-    }
+      },
+    ];
 
     return {
       module: ConfigModule,
       global: options.isGlobal,
       providers: isConfigToLoad
         ? [
-            ...providers,
+            ...essentialProviders,
             {
               provide: CONFIGURATION_LOADER,
               useFactory: (
@@ -107,9 +99,20 @@ export class ConfigModule {
               inject: [CONFIGURATION_TOKEN, ...configProviderTokens],
             },
           ]
-        : providers,
+        : essentialProviders,
       exports: [ConfigService, ...configProviderTokens],
     };
+  }
+
+  private static loadFile(options: ConfigModuleOptions): Record<string, any> {
+    switch (options.type) {
+      case 'env':
+        return loadEnvFile(options.envFile);
+      case 'json':
+        return loadJsonFile(options.jsonFile);
+      default:
+        throw new Error(`Incorrect configure type: ${options.type}`);
+    }
   }
 
   /**
@@ -146,28 +149,6 @@ export class ConfigModule {
     };
   }
 
-  private static loadEnvFile(
-    options: ConfigModuleOptions,
-  ): Record<string, any> {
-    const envFilePaths = Array.isArray(options.envFilePath)
-      ? options.envFilePath
-      : [options.envFilePath || resolve(process.cwd(), '.env')];
-
-    let config: ReturnType<typeof dotenv.parse> = {};
-    for (const envFilePath of envFilePaths) {
-      if (fs.existsSync(envFilePath)) {
-        config = Object.assign(
-          dotenv.parse(fs.readFileSync(envFilePath)),
-          config,
-        );
-        if (options.expandVariables) {
-          config = dotenvExpand({ parsed: config }).parsed || config;
-        }
-      }
-    }
-    return config;
-  }
-
   private static assignVariablesToProcess(config: Record<string, any>) {
     if (!isObject(config)) {
       return;
@@ -183,6 +164,7 @@ export class ConfigModule {
   ) {
     const factoryRef = provider.useFactory;
     const token = getRegistrationToken(factoryRef);
+
     mergeConfigObject(host, item, token);
   }
 
