@@ -1,8 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { join } from 'path';
-import { ConfigService } from '../../lib';
-import { AppModule } from '../src/app.module';
+import { ConfigService } from '../../../../lib';
+import { AppModule } from '../app.module';
 
 describe('Environment variables and .env files', () => {
   let app: INestApplication;

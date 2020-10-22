@@ -1,21 +1,21 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 
-describe('Nested Files', () => {
+describe('forFeature()', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule.withNestedLoadedConfigurations()],
+      imports: [AppModule.withForFeature()],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
   });
 
-  it(`should return nested loaded configuration`, () => {
-    const host = app.get(AppModule).getNestedDatabaseHost();
+  it(`should load configuration with "forFeature()"`, () => {
+    const host = app.get(AppModule).getDatabaseHost();
     expect(host).toEqual('host');
   });
 

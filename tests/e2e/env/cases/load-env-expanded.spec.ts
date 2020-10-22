@@ -1,22 +1,22 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
+import { AppModule } from '../app.module';
 
-describe('forFeature()', () => {
+describe('Environment variables', () => {
   let app: INestApplication;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
-      imports: [AppModule.withForFeature()],
+      imports: [AppModule.withExpandedEnvVars()],
     }).compile();
 
     app = module.createNestApplication();
     await app.init();
   });
 
-  it(`should load configuration with "forFeature()"`, () => {
-    const host = app.get(AppModule).getDatabaseHost();
-    expect(host).toEqual('host');
+  it(`should return loaded env variables`, () => {
+    const envVars = app.get(AppModule).getEnvVariables();
+    expect(envVars.EMAIL).toEqual('support@myapp.test');
   });
 
   afterEach(async () => {
