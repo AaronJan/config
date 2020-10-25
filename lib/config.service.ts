@@ -35,16 +35,16 @@ export class ConfigService<K = Record<string, any>> {
    * @param defaultValue
    */
   get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
-    const validatedEnvValue = get(
+    const configValue = get(
       this.internalConfig[CONFIGURATION_KEY],
       propertyPath,
     );
-    if (!isUndefined(validatedEnvValue)) {
-      return (validatedEnvValue as unknown) as T;
+    if (!isUndefined(configValue)) {
+      return (configValue as unknown) as T;
     }
-    const processValue = get(process.env, propertyPath);
-    if (!isUndefined(processValue)) {
-      return (processValue as unknown) as T;
+    const envValue = get(process.env, propertyPath);
+    if (!isUndefined(envValue)) {
+      return (envValue as unknown) as T;
     }
     const internalValue = get(this.internalConfig, propertyPath);
     return isUndefined(internalValue) ? defaultValue : internalValue;
