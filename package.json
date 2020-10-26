@@ -1,6 +1,6 @@
 {
   "name": "nestjs-any-config",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "A module for NestJS that support JSON and dotenv (maybe more?) config files.",
   "author": "Aaron Jan",
   "contributors": [
