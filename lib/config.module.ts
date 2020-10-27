@@ -108,7 +108,11 @@ export class ConfigModule {
             },
           ]
         : essentialProviders,
-      exports: [ConfigService, ...configProviderTokens],
+      exports: [
+        ConfigService,
+        VALIDATED_CONFIGURATION_TOKEN,
+        ...configProviderTokens,
+      ],
     };
   }
 
