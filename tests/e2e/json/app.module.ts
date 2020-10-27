@@ -53,6 +53,9 @@ export class AppModule {
       imports: [
         ConfigModule.forRoot({
           type: 'json',
+          jsonFile: {
+            filePath: join(__dirname, 'config.json'),
+          },
           load: [databaseConfig],
         }),
       ],

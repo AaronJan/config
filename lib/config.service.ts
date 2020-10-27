@@ -1,7 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import get from 'lodash.get';
 import { isUndefined } from 'util';
-import { CONFIGURATION_KEY, CONFIGURATION_TOKEN } from './config.constants';
+import {
+  VALIDATED_CONFIGURATION_KEY,
+  CONFIGURATION_TOKEN,
+} from './config.constants';
 import { NoInferType } from './types';
 
 @Injectable()
@@ -36,7 +39,7 @@ export class ConfigService<K = Record<string, any>> {
    */
   get<T = any>(propertyPath: keyof K, defaultValue?: T): T | undefined {
     const configValue = get(
-      this.internalConfig[CONFIGURATION_KEY],
+      this.internalConfig[VALIDATED_CONFIGURATION_KEY],
       propertyPath,
     );
     if (!isUndefined(configValue)) {

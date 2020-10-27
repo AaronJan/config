@@ -3,11 +3,12 @@ import { FactoryProvider, Provider } from '@nestjs/common/interfaces';
 import { isObject } from 'util';
 import { ConfigHostModule } from './config-host.module';
 import {
-  CONFIGURATION_KEY,
+  VALIDATED_CONFIGURATION_KEY,
   CONFIGURATION_TOKEN,
   CONFIGURATION_LOADER,
   CONFIGURATION_SERVICE_TOKEN,
   CONFIGURATION_CONTENT_INITIALIZATION,
+  VALIDATED_CONFIGURATION_TOKEN,
 } from './config.constants';
 import { ConfigService } from './config.service';
 import { ConfigFactory, ConfigModuleOptions } from './interfaces';
@@ -74,9 +75,16 @@ export class ConfigModule {
         // Inject configuration content into host.
         provide: CONFIGURATION_CONTENT_INITIALIZATION,
         useFactory: (configHost: Record<string, any>) => {
-          configHost[CONFIGURATION_KEY] = config;
+          configHost[VALIDATED_CONFIGURATION_KEY] = config;
         },
         inject: [CONFIGURATION_TOKEN],
+      },
+      {
+        provide: VALIDATED_CONFIGURATION_TOKEN,
+        useFactory: (configHost: Record<string, any>) => {
+          return configHost[VALIDATED_CONFIGURATION_KEY];
+        },
+        inject: [CONFIGURATION_TOKEN, CONFIGURATION_CONTENT_INITIALIZATION],
       },
     ];
 
