@@ -1,12 +1,15 @@
-import { ConfigModuleOptions } from '../interfaces';
+import {
+  ConfigModuleEnvFileOptions,
+  ConfigModuleJsonFileOptions,
+} from '../interfaces';
 import { resolve } from 'path';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
 import dotenvExpand from 'dotenv-expand';
 
-export function loadEnvFile(
-  options: ConfigModuleOptions['envFile'] = {},
-): Record<string, any> {
+export async function loadEnvFile(
+  options: ConfigModuleEnvFileOptions['envFile'] = {},
+): Promise<Record<string, any>> {
   const envFilePaths = Array.isArray(options.filePath)
     ? options.filePath
     : [options.filePath || resolve(process.cwd(), '.env')];
@@ -34,9 +37,9 @@ export function loadEnvFile(
       };
 }
 
-export function loadJsonFile(
-  options: ConfigModuleOptions['jsonFile'] = {},
-): Record<string, any> {
+export async function loadJsonFile(
+  options: ConfigModuleJsonFileOptions['jsonFile'] = {},
+): Promise<Record<string, any>> {
   const jsonFilePaths = Array.isArray(options.filePath)
     ? options.filePath
     : [options.filePath || resolve(process.cwd(), 'config.json')];

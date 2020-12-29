@@ -35,25 +35,6 @@ export class ConfigModule {
    * @param options
    */
   static forRoot(options: ConfigModuleOptions): DynamicModule {
-    let config = this.loadFile(options);
-
-    if (options.validationSchema) {
-      const validationOptions = this.getSchemaValidationOptions(options);
-      const {
-        error,
-        value: validatedConfig,
-      } = options.validationSchema.validate(config, validationOptions);
-
-      if (error) {
-        throw new Error(`Config validation error: ${error.message}`);
-      }
-      config = validatedConfig;
-    }
-
-    if (options.type === 'env') {
-      this.assignVariablesToProcess(config);
-    }
-
     const isConfigToLoad =
       options.load !== undefined && options.load.length > 0;
 
@@ -74,7 +55,26 @@ export class ConfigModule {
       {
         // Inject configuration content into host.
         provide: CONFIGURATION_CONTENT_INITIALIZATION,
-        useFactory: (configHost: Record<string, any>) => {
+        useFactory: async (configHost: Record<string, any>) => {
+          let config = await this.loadFile(options);
+
+          if (options.validationSchema) {
+            const validationOptions = this.getSchemaValidationOptions(options);
+            const {
+              error,
+              value: validatedConfig,
+            } = options.validationSchema.validate(config, validationOptions);
+
+            if (error) {
+              throw new Error(`Config validation error: ${error.message}`);
+            }
+            config = validatedConfig;
+          }
+
+          if (options.type === 'env') {
+            this.assignVariablesToProcess(config);
+          }
+
           configHost[VALIDATED_CONFIGURATION_KEY] = config;
         },
         inject: [CONFIGURATION_TOKEN],
@@ -116,14 +116,16 @@ export class ConfigModule {
     };
   }
 
-  private static loadFile(options: ConfigModuleOptions): Record<string, any> {
+  private static async loadFile(
+    options: ConfigModuleOptions,
+  ): Promise<Record<string, any>> {
     switch (options.type) {
       case 'env':
-        return loadEnvFile(options.envFile);
+        return await loadEnvFile(options.envFile);
       case 'json':
-        return loadJsonFile(options.jsonFile);
+        return await loadJsonFile(options.jsonFile);
       default:
-        throw new Error(`Incorrect configure type: ${options.type}`);
+        throw new Error(`Incorrect configure type: ${(options as any).type}`);
     }
   }
 
