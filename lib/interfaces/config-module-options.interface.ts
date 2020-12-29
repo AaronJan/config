@@ -1,14 +1,7 @@
 import { ConfigFactory } from './config-factory.interface';
 
-export interface ConfigModuleOptions {
-  /**
-   * If "true", registers `ConfigModule` as a global module.
-   * See: https://docs.nestjs.com/modules#global-modules
-   */
-  isGlobal?: boolean;
-
-  type: 'env' | 'json';
-
+export interface ConfigModuleEnvFileOptions {
+  type: 'env';
   envFile?: {
     ignoreEnvFile?: boolean;
 
@@ -34,7 +27,10 @@ export interface ConfigModuleOptions {
      */
     ignoreEnvVars?: boolean;
   };
+}
 
+export interface ConfigModuleJsonFileOptions {
+  type: 'json';
   jsonFile?: {
     /**
      * Path to the JSON file(s) to be loaded.
@@ -46,6 +42,19 @@ export interface ConfigModuleOptions {
      */
     encoding?: string;
   };
+}
+
+export interface ConfigModuleCustomLoaderOptions {
+  type: 'custom';
+  configLoader: () => Promise<Record<string, any>>;
+}
+
+interface ConfigModuleBaseOptions {
+  /**
+   * If "true", registers `ConfigModule` as a global module.
+   * See: https://docs.nestjs.com/modules#global-modules
+   */
+  isGlobal?: boolean;
 
   /**
    * Environment variables validation schema (Joi).
@@ -64,3 +73,10 @@ export interface ConfigModuleOptions {
    */
   load?: Array<ConfigFactory>;
 }
+
+export type ConfigModuleOptions = ConfigModuleBaseOptions &
+  (
+    | ConfigModuleEnvFileOptions
+    | ConfigModuleJsonFileOptions
+    | ConfigModuleCustomLoaderOptions
+  );

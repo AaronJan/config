@@ -124,6 +124,8 @@ export class ConfigModule {
         return await loadEnvFile(options.envFile);
       case 'json':
         return await loadJsonFile(options.jsonFile);
+      case 'custom':
+        return await options.configLoader();
       default:
         throw new Error(`Incorrect configure type: ${(options as any).type}`);
     }

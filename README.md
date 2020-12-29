@@ -8,7 +8,7 @@
 
 ## Description
 
-This project is based on [`@nestjs/config`](https://github.com/nestjs/config), added JSON config support and kept original functions.
+This project is based on [`@nestjs/config`](https://github.com/nestjs/config), added JSON config and **custom config loader** support and kept original functions.
 
 ## Installation
 
@@ -53,6 +53,32 @@ import { ConfigModule } from 'nestjs-any-config';
           join(__dirname, 'config.local.json'),
           join(__dirname, 'config.json'),
         ],
+      },
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+### Using custom config file loader
+
+You can using this method to load config from anywhere you want:
+
+```javascript
+import { Module } from '@nestjs/common';
+import { ConfigModule } from 'nestjs-any-config';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      type: 'custom',
+      configLoader: async () => {
+        // Do your thing here
+
+        // return the config
+        return {
+          // ...
+        }
       },
     }),
   ],
